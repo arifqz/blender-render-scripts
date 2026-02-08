@@ -40,28 +40,28 @@ if render.engine != 'CYCLES':
 else:
     print('Render engine: CYCLES (already set)')
 
-# Configure GPU rendering
+# Configure GPU rendering with CUDA (most compatible)
 if render.engine == 'CYCLES':
     scene.cycles.device = 'GPU'
     print('Device set to GPU')
     
-    # Enable GPU devices
     try:
         prefs = bpy.context.preferences.addons['cycles'].preferences
+        prefs.compute_device_type = 'CUDA'
         prefs.refresh_devices()
         
         gpu_enabled = False
         for device in prefs.devices:
-            if device.type in ('CUDA', 'OPTIX'):
+            if device.type == 'CUDA':
                 device.use = True
-                print(f'Enabled GPU device: {device.type} - {device.name}')
+                print(f'Enabled GPU device: {device.name}')
                 gpu_enabled = True
             elif device.type == 'CPU':
                 device.use = False
-                print(f'Disabled CPU device')
+                print('Disabled CPU device')
         
         if not gpu_enabled:
-            print('WARNING: No GPU devices found - will use CPU')
+            print('WARNING: No CUDA GPU found - will use CPU')
     except Exception as e:
         print(f'WARNING: Could not configure GPU devices: {e}')
 
